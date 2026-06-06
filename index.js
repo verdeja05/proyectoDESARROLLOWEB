@@ -1,21 +1,24 @@
 import express from "express";
 import dotenv from "dotenv";
-import mongoose from "mongoose";
-import userRoutes from './routes/user.js'
+import userRoutes from './routes/user.js';
+import swaggerUI from 'swagger-ui-express';
+import cors from 'cors';
+import swaggerSpec from "./config/swagger.js";
+import connection from "./config/databases.js";
 
 const app = express();
-dotenv.config()
+dotenv.config();
 
-mongoose.connect(process.env.MONGODB_URI)
-  .then(() => console.log('conectado a MongoDB'))
-  .catch((err) => console.log(err))
+connection();
+
+app.use(express.json());
+app.use(cors());
+app.use('/api/users', userRoutes);
+app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swaggerSpec));
 
 app.get('/', (req, res) => {
     res.send('Hola mundo');
 });
-
-app.use(express.json());
-app.use('/api/users', userRoutes);
 
 const PORT = process.env.PORT;
 app.listen(4000, () => {
